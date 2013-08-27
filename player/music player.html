@@ -2,8 +2,12 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>music player 代码整洁版</title>
-	<script src="jquery/jquery.js"></script>
+	<title>music player</title>
+	<script src="js/jquery.js"></script>
+	<script src="js/bodySelect.js"></script>
+	<script src="js/createDragbar.js"></script>
+	<script src="js/beDragable.js"></script>
+
 	<!-- <link rel="stylesheet" href="css/drag-button.css"> -->
 	<link rel="stylesheet" href="css/reset.css">
 	<link rel="stylesheet" type="text/css" href="css/style.css">
@@ -59,30 +63,7 @@
 
 	<script>
 
-			var bodySelect_g = function (t_or_f){
 
-			if(t_or_f === true){
-
-				$('body').css({
-
-					'-moz-user-select': 'text',
-					'-webkit-user-select': 'text',
-					'-ms-user-select': 'text'
-
-				});
-
-			}
-			if(t_or_f === false){
-
-				$('body').css({
-
-					'-moz-user-select': 'none',
-					'-webkit-user-select': 'none',
-					'-ms-user-selecct': 'none'
-
-				});
-			}
-		}
 	$(function(){			// for change theme box
 
 		var $theme_head = $('.theme-box').click(function(event) {
@@ -95,41 +76,9 @@
 
 				$(this).css('cursor', 'move');
 
-		}).on('mousedown', function (e) {
-
-			var $that = $(this);
-
-			bodySelect_g(false);
-
-			var offset_left = e.pageX - parseInt($that.parent('.theme-box').css('left'));
-			var offset_top =  e.pageY - parseInt($that.parent('.theme-box').css('top')); 
-
-			$(window).on('mousemove', function (e) {
-
-
-				// console.log($that.parent('.theme-box').css('left'))
-
-				var offset_left_reset = e.pageX - offset_left ;
-
-				var offset_top_rest = e.pageY - offset_top;
-
-				console.log($that.parent('.theme-box').position().left)
-				
-				$that.parent('.theme-box').css({
-
-					top: offset_top_rest + 'px',
-					left: offset_left_reset + 'px' 
-				});		
-
-			}).on('mouseup', function () {
-				
-				$(this).off('mousemove');
-				
-				bodySelect_g(true);
-
-			});
-			
 		});
+
+		beDragable($theme_head);
 
 		var player_theme = ['#304949','#C55F4C','#83BD38','#369EAC'];
 
@@ -138,6 +87,7 @@
 		$theme_item.each(function(index, el) {
 
 			$(this).css('background-color', player_theme[index])
+
 					.click(function(event) {
 						
 						$('.music-player-wrap').css('background-color', player_theme[index]);
@@ -151,164 +101,11 @@
 				$('#modal-box').fadeOut('300');
 
 		});
-
 	})
 
 
 	$(function  () {
 		
-		var  createDragbar = function  ($dom , fun_for_mousemove, fun_for_mouseup , opts) {
-
-			//fun_for_mouseup : function: while mouseup after dragging the drag-button
-			
-			opts = $.extend(
-				{
-					width: '285px',
-					bar_height: '6px',
-					margin: '6px 0',
-					left_bg: '#74818b',
-					button_bg: '#5a656e',
-					right_bg: '#c7c7c7',
-					dir: 'x'
-				}
-				, opts);
-
-			opts.buttoon_size = parseInt(opts.bar_height) + 2 * parseInt(opts.margin) +'px';
-
-			var $html = $('<div><p></p><a></a><p></p></div>');
-
-			var e_mousemove_active = false;		//judge for mouseup
-
-			if(opts.dir !== 'x' && opts.dir !== 'X'){
-
-				 	$html.first().css({
-
-						'-webkit-transform': 'rotate(90deg)',
-						'-moz-transform': 'rotate(90deg)',
-						'-ms-transform': 'rotate(90deg)'
-				 	});
-			}
-
-			$html.addClass('clearfix').css({
-
-					'position': 'relative',
-					'display': 'inline-block'
-				})
-
-			.children('a').css({
-
-				width: opts.buttoon_size,
-				height: opts.buttoon_size,
-				display: 'inline-block',
-				position: 'absolute',
-				top:0,
-				left:0,
-				'border-radius': '100%',
-				'background-color': opts.button_bg
-
-			}).on('mousedown', function (e) {
-
-				var left_offset;
-
-				var $that = $(this);
-
-				e_mousemove_active = true;
-
-				if(opts.dir != 'x' && (opts.dir != 'X')){
-
-				 	left_offset =  -e.pageY + parseInt($(this).css('left'));
-				 }
-
-				else{
-
-					left_offset = e.pageX - parseInt($(this).css('left'));
-				}
-
-				$(window).on('mousemove.drag_moving', function (e) {
-					
-					var left_reset;
-
-					if(opts.dir != 'x' && (opts.dir != 'X')){
-
-					 	left_reset = e.pageY + left_offset;
-					 }
-
-					else{
-
-						left_reset = e.pageX - left_offset;
-					}
-
-						if(left_reset < 0){
-
-							left_reset = 0;
-						}
-
-						var max_left = parseInt(opts.width)-parseInt(opts.buttoon_size);
-
-						if(left_reset > max_left ){
-
-							left_reset  = max_left;
-						}
-				
-							bodySelect_g(false);
-
-						$that.css({
-
-							left: left_reset+'px',
-						});
-
-						$that.prev().width(left_reset);
-
-						$that.next().width(parseInt(opts.width)-left_reset);
-
-						fun_for_mousemove();
-
-				}).on('mouseup', function () {
-
-						if(!e_mousemove_active){
-
-							return ;
-						}
-
-						$(this).off('.drag_moving');
-
-						fun_for_mouseup();
-
-						bodySelect_g(true);
-
-						e_mousemove_active = false;
-
-				});
-				
-			}).siblings('p').css({
-
-				float: 'left',
-				height: opts.bar_height
-
-			});
-
-			$html.children('p').css('margin', opts.margin)
-
-			//		can add other ClassName using for more stylesheet
-
-				.first().css({
-
-						'background-color': opts.left_bg,
-						'border-radius': '55px 0 0 55px'
-					})
-
-				.siblings('p').css({
-
-					'background-color': opts.right_bg,
-					'width': opts.width,
-					'border-radius': '0 55px 55px 0'
-
-				});
-
-			$dom.append($html);
-
-		}
-
 		var url_ = 'music/';
 
 		var music_list = [url_+'画情-姚贝娜.mp3',url_+'存在-汪峰.mp3',url_+'我是真的爱上你-王杰.mp3',url_+'味道-侯磊.mp3',url_+'一千年以后-林俊杰.mp3'];
@@ -413,7 +210,7 @@
 
 				player.play();
 
-			},100)
+			},700)
 
 		}
 
@@ -541,11 +338,10 @@
 				
 				$(this).children().css({
 				
-					'backgroundPositionX':'-170px',
+					'background-position':'-170px -89px',
 					'left':'40%'
 
 				});
-
 				
 				playInit();
 
@@ -558,7 +354,7 @@
 
 				$(this).children().css({
 				
-					'backgroundPositionX':'-131px',
+					'background-position':'-131px -89px',
 					'left':'45%'
 
 				});
@@ -567,7 +363,6 @@
 				
 				clearTimeout(time_);
 			}
-
 		});
 
 		var reg_music = /[^a-zA-Z0-9\/\:\.]+/;
@@ -578,43 +373,9 @@
 
 		var $song_list_li = $('<li></li>')
 
-		$song_list_li.clone().text('所有歌曲').addClass('song-list-head').appendTo($song_list_ul).on('mousedown', function (e) {
+		$song_list_li.clone().text('所有歌曲').addClass('song-list-head').appendTo($song_list_ul);
 
-			var $that = $(this);
-
-			bodySelect_g(false);
-
-			var offset_left = e.pageX - parseInt($that.parent().css('left'));
-
-			var offset_top =  e.pageY - parseInt($that.parent().css('top')); 
-
-			$(window).on('mousemove', function (e) {
-
-				console.log($that.parent('.theme-box').css('left'))
-
-				var offset_left_reset = e.pageX - offset_left ;
-
-				var offset_top_rest = e.pageY - offset_top;
-
-				 // console.log($that.parent().position().left)
-				
-				$that.parent().css({
-
-					top: offset_top_rest + 'px',
-					left: offset_left_reset + 'px' 
-				});		
-
-			}).on('mouseup', function () {
-				
-				$(this).off('mousemove');
-				
-				bodySelect_g(true);
-
-			});
-			
-		});
-
-			$.each(music_list, function(i, val) {
+		$.each(music_list, function(i, val) {
 
 			$song_list_li.clone().text(music_list[i].
 
@@ -626,7 +387,7 @@
 
 			$('#play-button').children().css({
 				
-				'backgroundPositionX':'-170px',
+				'background-position':'-170px -89px',
 				'left':'40%'
 
 			});
@@ -640,12 +401,13 @@
 					$(this).removeClass('song-list-items');
 
 				}).appendTo($song_list_ul);
-
 		});
 
 		$song_list_ul.find('li:eq(1)').addClass('playing_song');
 
 		$song_list_ul.appendTo('.music-buttons-footer');
+
+		beDragable($('.song-list-head'));
 
 		$('#song-list').click(function(event) {
 
@@ -677,13 +439,13 @@
 			
 			setTimeout(function  () {
 				
-			bodySelect_g(true)
+			bodySelect(true)
 				
 			},3000)
 
 		}).click(function() {
 
-			bodySelect_g(false);
+			bodySelect(false);
 			
 			music_index = (music_index === 0) ? music_list.length-1 : music_index-1;  
 
@@ -701,13 +463,13 @@
 			
 			setTimeout(function  () {
 				
-			bodySelect_g(true)
+			bodySelect(true)
 				
 			},3000)
 
 		}).click(function() {
 
-			bodySelect_g(false)
+			bodySelect(false)
 
 			music_index = (music_index === music_list.length-1) ? 0 : music_index+1;  
 			
@@ -746,7 +508,7 @@
 
 			$('#play-button').trigger('click').trigger('click')
 
-		},100)
+		},700)
 
 		$('.volume-1').trigger('click');
 
@@ -754,8 +516,6 @@
 		// console.log(music_list[i].match(reg_music));
 
 		})
-var a = 0;
-var a = '0';
 
 // console.dir(window)
 	</script>

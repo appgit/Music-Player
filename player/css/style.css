@@ -210,9 +210,9 @@ div.drag-bar-wrapper .time-wrap{
 	background-color: rgba(0, 0, 0, 0.42);
 	z-index:10;
 	-webkit-user-select: none;
-	-moz-webkit-user-select: none;
-	-ms-webkit-user-select: none;
-	-o-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	-o-user-select: none;
 }
 .song-list-ul >li{
 	padding:10px;
