@@ -33,19 +33,28 @@
 		</div>
 		<div class="music-buttons">
 			<div class="play-buttons clearfix">
-				<a class="pre-song left icon">上一首</a>
-				<div id="play-button" class="icon left">
+				<a class="pre-song left icon" title='上一首'>上一首</a>
+				<div id="play-button" class="icon left" title="">
 					<a class="icon">play</a>
 				</div>
-				<a class="next-song left icon">下一首</a>
+				<a class="next-song left icon" title='下一首'>下一首</a>
 			</div>
 		</div>
 		<div class="music-buttons-footer clearfix">
-			<a class="icon" id="song-list"></a>
-			<a class="change-theme icon"></a>
+			<a class="icon" id="song-list" title="歌曲列表"></a>
+			<!-- <a href="" class="icon" id="play-mode" titie="播放模式"></a> -->
+				<div class="icon current-mode" title="顺序播放">
+					<ul class="play-mode-ul">
+						<li class="play-mode-item icon mode_random" title="随机播放"></li>
+						<li class="play-mode-item icon mode_singleloop" title="单曲循环"></li>
+						<li class="play-mode-item icon mode_listloop" title="列表循环"></li>
+						<li class="play-mode-item icon mode_list" title="顺序播放"></li>
+					</ul>
+				</div>
+			<a class="change-theme icon" title="皮肤"></a>
 				<div class="theme-box">
 			<h1 class="clearfix">
-				<p>主题颜色设置</p>
+				<p>更换皮肤</p>
 				<a href="javascript:;">x</a>
 			</h1>
 			<div class="theme-content">
@@ -80,7 +89,7 @@
 
 		beDragable($theme_head);
 
-		var player_theme = ['#304949','#C55F4C','#83BD38','#369EAC'];
+		var player_theme = ['#30556b','#C55F4C','#83BD38','#369EAC'];
 
 		var $theme_item = $('.theme-box .theme-content').find('li');
 
@@ -180,6 +189,87 @@
 		var drag_len = $drag_button_right.outerWidth()+
 			$drag_button_left.outerWidth() - $drag_button.outerWidth();
 
+		function getModetype() {
+
+		var modetype = 4  // play mode default: order play
+
+			// To add mode button select process.
+		if($('.current-mode').attr('title') === '列表循环'){
+
+				modetype = 1 ;
+
+				return modetype;
+			}
+		else if($('.current-mode').attr('title') === '单曲循环'){
+
+				modetype = 2 ;
+
+				return modetype;
+
+			}
+		else if ($('.current-mode').attr('title') === '随机播放') {
+
+				modetype = 3 ;
+
+				return modetype;
+				
+			}
+		else if($('.current-mode').attr('title') === '顺序播放'){
+
+				modetype = 4 ;
+
+				return modetype;
+			}
+
+		return modetype;
+
+		}
+
+		var playMode = function(){
+
+			var modetype = getModetype();
+
+			var $next_song = $('#play-button').next()
+
+			var random_num = Math.random() * music_list.length
+
+			random_num = Math.ceil( random_num )
+
+			if(modetype === 1){
+
+				$next_song.trigger('click') //list loop
+			}
+				
+			else if (modetype === 2) {
+				
+			$('#play-button').trigger('click');   // single loop
+			
+			}
+
+			else if (modetype === 3){
+
+				for(var i = 0; i < random_num; i++){
+
+					$next_song.trigger('click')				
+				}				
+			}
+
+			else if(modetype === 4){
+
+				if( $('.playing_song').index() !== music_list.length ){
+
+					$next_song.trigger('click')				
+				}
+
+			}
+
+			// console.log('the random number: ' + random_num)
+
+			// $('#play-button').next().trigger('click').trigger('click').trigger('click');
+
+
+		}
+
 		var switchMusic = function  (music_index,music_name) {
 
 				$music_name.text(music_name);
@@ -262,6 +352,8 @@
 				player.pause();
 
 				_time_update(0);
+
+				playMode();
 
 				return; 				
 			} 
@@ -420,6 +512,71 @@
 
 			$('#modal-box').fadeIn('300');
 		});
+
+		$('.play-mode-item').hover(function(e) {
+			
+			var bg_pos = $(this).css('background-position').split(' ');
+			
+			var bg_pos_x = parseInt(bg_pos[0]) - 38 + 'px ';
+
+			$(this).css('background-position', bg_pos_x + bg_pos[1]);
+
+			e.stopPropagation();
+
+		}, function(e) {
+						
+			var bg_pos = $(this).css('background-position').split(' ');
+			
+			var bg_pos_x = parseInt(bg_pos[0]) + 38 + 'px ';
+
+			$(this).css('background-position', bg_pos_x + bg_pos[1]);
+
+			e.stopPropagation();
+
+		}).click(function(event) {
+
+			event.stopPropagation();
+
+			var bg_pos = $(this).css('background-position').split(' ');
+			
+			var bg_pos_x = parseInt(bg_pos[0]) + 38 + 'px ';
+
+			$(this).parent().fadeOut(300)
+
+			$('.current-mode').css('background-position', bg_pos_x + bg_pos[1]).attr('title', $(this).attr('title'));
+
+		});
+		$('.current-mode').mouseover(function(e) {
+			
+			var bg_pos = $(this).css('background-position').split(' ');
+			
+			var bg_pos_x = parseInt(bg_pos[0]) - 38 + 'px ';
+
+			$(this).css('background-position', bg_pos_x + bg_pos[1]);
+
+			e.stopPropagation();
+			
+
+		}).mouseout(function(e) {
+						
+			var bg_pos = $(this).css('background-position').split(' ');
+			
+			var bg_pos_x = parseInt(bg_pos[0]) + 38 + 'px ';
+
+			$(this).css('background-position', bg_pos_x + bg_pos[1]);
+
+			e.stopPropagation();
+
+		}).click(function(event) {
+			
+			$(this).children().stop().slideToggle(500)
+		});
+
+
+		// $('.current-mode').click(function(){
+
+		// 	$(this).children().show();
+		// })
 		$('#modal-box').click(function(event) {
 
 			$('.song-list-ul').fadeOut('500');

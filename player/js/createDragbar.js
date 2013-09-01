@@ -1,4 +1,4 @@
-		var  createDragbar = function  ($dom , fun_for_mousemove, fun_for_mouseup , opts) {
+var  createDragbar = function  ($dom , fun_for_mousemove, fun_for_mouseup , opts) {
 
 			//fun_for_mouseup : function: while mouseup after dragging the drag-button
 			
@@ -137,12 +137,52 @@
 						'background-color': opts.left_bg,
 						'border-radius': '55px 0 0 55px'
 					})
+				.mousedown(function(e) {
+
+					var $dragbtn = $(this).siblings('a')
+
+					var half_dragbtn = $dragbtn.outerWidth() / 2 ; 
+
+					if (e.offsetX < half_dragbtn) {	//not over the outer_width_left
+
+						e.offsetX = half_dragbtn;
+					}
+
+					$dragbtn.css('left', parseInt($dragbtn[0].style.left) - ( $(this).outerWidth() - e.offsetX ) - half_dragbtn +'px')
+					.next('p').css('width',$dragbtn.next('p').outerWidth() + ( $(this).outerWidth() - e.offsetX ) + half_dragbtn);
+					
+					$(this).css('width',e.offsetX - half_dragbtn);
+
+					fun_for_mousemove();
+					fun_for_mouseup();
+
+				})
 
 				.siblings('p').css({
 
 					'background-color': opts.right_bg,
 					'width': opts.width,
 					'border-radius': '0 55px 55px 0'
+
+				}).mousedown(function(e) {
+
+					var $dragbtn = $(this).siblings('a')
+
+					var half_dragbtn = $dragbtn.outerWidth() / 2 ; 
+
+					//not over the outer_width_right
+					if (e.offsetX > $dragbtn.next().outerWidth() - half_dragbtn) {
+
+						e.offsetX = $dragbtn.next().outerWidth() - half_dragbtn;
+					}
+
+					$(this).css('width',$(this).outerWidth()-e.offsetX + half_dragbtn);
+
+					$dragbtn.css('left', parseInt($dragbtn[0].style.left) + e.offsetX - half_dragbtn +'px')
+					.prev('p').css('width', $dragbtn.prev('p').outerWidth() + e.offsetX - half_dragbtn)
+
+					fun_for_mousemove();
+					fun_for_mouseup();
 
 				});
 
