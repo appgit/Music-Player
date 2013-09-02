@@ -199,7 +199,9 @@ div.drag-bar-wrapper .time-wrap{
 	position:absolute;
 	left: 0;
 	bottom:100%;
+	margin-bottom: -20px;
 	display: none;
+	background-color: #30556b;
 }
 .music-buttons-footer .play-mode-item{
 	width: 26px;
