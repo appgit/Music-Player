@@ -143,6 +143,18 @@
 		var player = $('#music-player')[0];				//audio tag
 
 
+		var is_music_ok = function(){
+
+			if(player.readyState === 4){
+
+				return true;
+			}
+
+			return false;
+
+		}
+
+
 		var moveVolumebutton = function (){
 
 			var $volume_drag = $('.volume-drag').children('div').children('a');
@@ -162,12 +174,29 @@
 
 		var upDragbutton = function (){
 
-					player.currentTime =  parseInt($drag_button.css('left')) * 
+			//console.log(player.currentTime)
+
+
+			var curtime =  parseInt($drag_button.css('left')) * 
 										__music_unit/1000;
 
+			if(player.buffered.end(0) < curtime ){
+
+				var left_pos = player.currentTime / (__music_unit/1000);
+				var right_pos = player.duration / ( __music_unit/1000) + $drag_button.outerWidth();
+
+					$drag_button.css('left',left_pos+'px').prev('p').outerWidth(left_pos).siblings('p').outerWidth(right_pos-left_pos)
 					playInit();
 
 					_time_update(player.currentTime);
+
+				return ;
+			}
+			player.currentTime = curtime;
+
+			playInit();
+
+			_time_update(player.currentTime);
 		}
 		var moveDragbutton = function  () {
 					
@@ -294,16 +323,21 @@
 
 				if(music_wait){
 
-					clearTimeout(music_wait);
+					clearInterval(music_wait);
 				}
 			 	
-			 	music_wait = setTimeout(function  () {
+			 	music_wait = setInterval(function  () {
+
+			 		if(!is_music_ok()){
+			 			return ;
+			 		}
+			 		clearInterval(music_wait)
 				
 				playInit();
 
 				player.play();
 
-			},700)
+			},500)
 
 		}
 
@@ -418,6 +452,11 @@
 		});
 
 		$('#play-button').mousedown(function(event) {
+
+			// if(!is_music_ok()){
+				
+			// 	return ;
+			// }
 			
 			$(this).css('box-shadow','0 0 5px pink')
 
@@ -426,6 +465,16 @@
 			$(this).css('box-shadow', 'none');
 
 		}).click(function() {
+
+			if(!is_music_ok()){	//readystate
+				
+				return ;
+			}
+			// setInterval(function(){
+
+			// 	console.log(player.buffered.end(0))
+
+			// },1000)
 
 			if(!isplaying){
 
@@ -656,19 +705,28 @@
 			$dom.prev().outerWidth(width);
 
 			$dom.next().outerWidth($dom.outerWidth());
+
 		})($('.volume-drag').children('div').children('a'))
 
 			 player.volume = 1 ;			
 
 		});
 
-		setTimeout( function() {
+		var time_loading = setInterval( function() {
 
 			//set autoplay when open,if you want to autoplay,just delete one .trigger
+			if(is_music_ok()){
+
+				clearInterval(time_loading);
 
 			$('#play-button').trigger('click').trigger('click')
 
-		},700)
+			}
+
+			console.log(player.readyState)
+
+
+		},500)
 
 		$('.volume-1').trigger('click');
 
